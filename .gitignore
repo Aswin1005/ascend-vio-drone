@@ -37,3 +37,6 @@ Thumbs.db
 .env
 venv/
 .venv/
+
+# Nested git repos (use submodule if needed later)
+isro_ws_src/isro_rovio/
