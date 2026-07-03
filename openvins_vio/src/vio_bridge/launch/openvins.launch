@@ -1,0 +1,14 @@
+<launch>
+  <!-- Path to OpenVINS config -->
+  <arg name="config_path" default="$(env HOME)/openvins_vio/config/openvins/estimator_config.yaml" />
+
+  <node name="ov_msckf" pkg="ov_msckf" type="run_subscribe_msckf" output="screen">
+    <param name="config_path" value="$(arg config_path)" />
+
+    <!-- Topic Remappings -->
+    <remap from="/imu0" to="/mavros/imu/data_raw" />
+    <remap from="/cam0/image_raw" to="/camera/infra1/image_rect_raw" />
+    <remap from="/cam1/image_raw" to="/camera/infra2/image_rect_raw" />
+  </node>
+</launch>
+

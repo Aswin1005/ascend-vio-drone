@@ -1,0 +1,97 @@
+%YAML:1.0
+# ============================================================================
+# OpenVINS Estimator Configuration
+# Hardware: Intel RealSense D435i (camera) + Pixhawk 6C Mini (IMU)
+# Platform: Jetson Nano 4GB
+# ============================================================================
+
+# ── Estimator Settings ───────────────────────────────────────────────────────
+use_fej: true                    # First-estimate Jacobian for consistency
+use_imuavg: true                 # Average IMU measurements between frames
+use_rk4int: true                 # RK4 integration (more accurate than Euler)
+use_stereo: true                 # Use stereo infrared cameras
+max_clones: 11                   # Max camera clones in state (reduced for Nano)
+max_slam: 50                     # Max SLAM features in state
+max_slam_in_update: 25           # Max SLAM features per update
+max_msckf_in_update: 40          # Max MSCKF features per update
+dt_slam_delay: 1                 # Delay (in frames) before SLAM init
+
+# ── Time offset estimation (CRITICAL for Pixhawk IMU over USB) ───────────────
+calib_cam_extrinsics: true       # Online calibrate camera-IMU extrinsics
+calib_cam_intrinsics: true       # Online calibrate camera intrinsics
+calib_cam_timeoffset: true       # Online estimate camera-IMU time offset
+                                 # This compensates for USB latency/jitter
+
+# ── Initial time offset guess (camera leads IMU, in seconds) ─────────────────
+# USB latency is typically 5-50ms. This is a starting guess.
+# OpenVINS will estimate the true value online.
+calib_imu_cam_dt: 0.005292525998630659
+
+# ── Feature Tracking ─────────────────────────────────────────────────────────
+num_pts: 100                     # Max features to track (reduced for Nano)
+fast_threshold: 20               # FAST corner threshold
+grid_x: 5                        # Grid cols for feature distribution
+grid_y: 3                        # Grid rows for feature distribution
+min_px_dist: 10                  # Min pixel distance between features
+knn_ratio: 0.70                  # KNN matching ratio test
+downsize_cameras: false          # Don't downsize (already 640x480)
+
+# Histogram equalization (helps with indoor lighting)
+histogram_method: "HISTOGRAM"    # NONE, HISTOGRAM, or CLAHE
+
+# ── Feature Initializer ─────────────────────────────────────────────────────
+fi_max_dist: 75                  # Max feature distance for triangulation
+fi_max_baseline: 200             # Max baseline for triangulation
+fi_max_cond_number: 20000        # Max condition number
+
+# ── Zero Velocity Update ─────────────────────────────────────────────────────
+# Helps when drone is stationary on the ground
+try_zupt: true
+zupt_chi2_multipler: 0
+zupt_max_velocity: 0.1
+zupt_noise_multiplier: 50
+zupt_max_disparity: 1.0
+
+# ── IMU Noise Parameters (Pixhawk 6C Mini — ICM-42688-P) ────────────────────
+# These are conservative starting values. Calibrate with Allan Variance later.
+# Values are inflated ~10x from datasheet for robustness.
+gyroscope_noise_density: 0.004       # rad/s/sqrt(Hz) — inflated from ~0.0003
+gyroscope_random_walk: 0.00006       # rad/s^2/sqrt(Hz)
+accelerometer_noise_density: 0.04    # m/s^2/sqrt(Hz) — inflated from ~0.004
+accelerometer_random_walk: 0.006     # m/s^3/sqrt(Hz)
+
+# ── IMU Intrinsics ───────────────────────────────────────────────────────────
+imu_model: "none"              # Use standard IMU model (no intrinsic calibration needed)
+
+# ── Camera 0 (D435i Infrared Left — /camera/infra1/image_raw) ────────────────
+cam0_is_fisheye: false
+cam0_k: [419.92816819864254, 420.6032545213175, 430.97782975508494, 252.59519201693755]     # fx, fy, cx, cy (calibrated)
+cam0_d: [-0.06288301299576085, 0.06481439190116244, 0.004663398656211324, 0.0033357348662304926]             # k1, k2, p1, p2 (calibrated)
+cam0_wh: [848, 480]
+
+# Camera 0 to IMU (Pixhawk) extrinsic transform
+# This represents the transform from Pixhawk IMU frame to D435i left IR camera
+cam0_T_imu:
+  - [0.10542203299452702, 0.9944182947436805, -0.004295350785641805, 0.013170742687819793]
+  - [0.8128383360258432, -0.08368211671981172, 0.5764469991491242, -0.009957869448616792]
+  - [0.5728699978581873, -0.0642616403491435, -0.8171232508829975, -0.14845611231928577]
+  - [0.0, 0.0, 0.0, 1.0]
+
+# ── Camera 1 (D435i Infrared Right — /camera/infra2/image_raw) ───────────────
+cam1_is_fisheye: false
+cam1_k: [418.071967755212, 418.49598331829884, 433.04332941450286, 251.75387352041184]
+cam1_d: [-0.06603116660524387, 0.05704034453729899, 0.003911713587255466, 0.0026813999159479495]
+cam1_wh: [848, 480]
+
+# Camera 1 to IMU extrinsic (same rotation, shifted by stereo baseline ~50mm)
+cam1_T_imu:
+  - [0.10180771716603851, 0.994804091106167, 9.509928062340078e-05, -0.034602804096975144]
+  - [0.8152765252983677, -0.08348974092042331, 0.5730215095949374, -0.010346513295717596]
+  - [0.5700520818511763, -0.05826047956783281, -0.8195403226795288, -0.15142284961631652]
+  - [0.0, 0.0, 0.0, 1.0]
+
+# ── Topic Configuration ──────────────────────────────────────────────────────
+# These get remapped in the launch file, but defaults are here
+topic_imu: "/mavros/imu/data_raw"
+topic_camera0: "/camera/infra1/image_raw"
+topic_camera1: "/camera/infra2/image_raw"

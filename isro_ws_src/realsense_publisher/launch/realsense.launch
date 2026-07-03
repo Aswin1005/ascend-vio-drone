@@ -1,0 +1,22 @@
+<launch>
+    <arg name="color_width"  default="640"/>
+    <arg name="color_height" default="480"/>
+    <arg name="color_fps"    default="30"/>
+    <arg name="ir_fps"       default="30"/>
+    <arg name="enable_color" default="true"/>
+    <arg name="enable_ir"    default="true"/>
+    <arg name="emitter_enabled" default="false"/>
+
+    <node pkg="realsense_publisher"
+          type="realsense_publisher.py"
+          name="realsense_publisher"
+          output="screen">
+        <param name="color_width"     value="$(arg color_width)"/>
+        <param name="color_height"    value="$(arg color_height)"/>
+        <param name="color_fps"       value="$(arg color_fps)"/>
+        <param name="ir_fps"          value="$(arg ir_fps)"/>
+        <param name="enable_color"    value="$(arg enable_color)"/>
+        <param name="enable_ir"       value="$(arg enable_ir)"/>
+        <param name="emitter_enabled" value="$(arg emitter_enabled)"/>
+    </node>
+</launch>

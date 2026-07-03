@@ -1,0 +1,13 @@
+<launch>
+  <node name="vio_bridge" pkg="vio_bridge" type="vio_bridge_node.py" output="screen">
+    <param name="publish_rate" value="30.0" />
+    <param name="camera_pitch_deg" value="-40.0" />
+    <!-- Swap X/Y: try -90 if forward motion shows on Y instead of X, +90 for opposite -->
+    <param name="camera_yaw_deg"   value="0.0" />
+
+    <param name="auto_set_ekf_origin" value="true" />
+    <param name="origin_lat" value="10.5276" />
+    <param name="origin_lon" value="76.2144" />
+    <param name="origin_alt" value="0.0" />
+  </node>
+</launch>

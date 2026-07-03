@@ -1,0 +1,49 @@
+# ============================================================================
+# MAVROS Configuration for ArduPilot (ArduCopter) - ROS1 Melodic Format
+# ============================================================================
+
+# ── Connection ───────────────────────────────────────────────────
+target_system_id: 1
+target_component_id: 1
+
+# ── Coordinate Frame ─────────────────────────────────────────────
+# MAVROS handles ENU↔NED conversion automatically
+local_position:
+  frame_id: "map"
+  tf:
+    send: true
+    frame_id: "map"
+    child_frame_id: "base_link"
+
+# ── IMU ──────────────────────────────────────────────────────────
+imu:
+  frame_id: "base_link"
+  raw:
+    publish: true
+    frame_id: "base_link"
+
+# ── Vision Pose ──────────────────────────────────────────────────
+vision_pose:
+  frame_id: "map"
+
+# ── Time Synchronization ─────────────────────────────────────────
+time:
+  time_ref_source: "fcu"
+  timesync_mode: "MAVLINK"
+  timesync_avg_alpha: 0.6
+
+# ── System ───────────────────────────────────────────────────────
+conn:
+  heartbeat_rate: 1.0
+  timeout: 10.0
+  timesync_rate: 10.0
+  system_time_rate: 1.0
+
+# ── Distance Sensor Configuration ────────────────────────────────
+distance_sensor:
+  rangefinder_pub:
+    id: 0
+    frame_id: "rangefinder"
+    orientation: PITCH_270
+    field_of_view: 0.1
+    send_tf: false

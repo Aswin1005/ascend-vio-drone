@@ -1,0 +1,21 @@
+<launch>
+  <arg name="fcu_url" default="/dev/ttyACM0:115200" />
+
+  <!-- 1. MAVROS -->
+  <include file="$(find vio_bridge)/launch/mavros_apm.launch">
+    <arg name="fcu_url" value="$(arg fcu_url)" />
+  </include>
+
+  <!-- 2. RealSense Camera (delay slightly to let MAVROS connect) -->
+  <node pkg="rostopic" type="rostopic" name="delay_realsense" args="pub /delay_rs std_msgs/String 'go' -1" launch-prefix="bash -c 'sleep 3; $0 $@' "/>
+  <include file="$(find vio_bridge)/launch/realsense_vio.launch" />
+
+  <!-- 3. OpenVINS -->
+  <node pkg="rostopic" type="rostopic" name="delay_openvins" args="pub /delay_ov std_msgs/String 'go' -1" launch-prefix="bash -c 'sleep 6; $0 $@' "/>
+  <include file="$(find vio_bridge)/launch/openvins.launch" />
+
+  <!-- 4. VIO Bridge -->
+  <node pkg="rostopic" type="rostopic" name="delay_bridge" args="pub /delay_bridge std_msgs/String 'go' -1" launch-prefix="bash -c 'sleep 8; $0 $@' "/>
+  <include file="$(find vio_bridge)/launch/vio_bridge.launch" />
+
+</launch>

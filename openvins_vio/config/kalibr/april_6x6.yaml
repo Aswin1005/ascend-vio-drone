@@ -1,0 +1,18 @@
+# ============================================================================
+# AprilGrid Calibration Target Configuration for Kalibr
+# Print this on A3 or A2 paper and mount on a rigid flat board
+# ============================================================================
+#
+# Download the PDF from:
+#   https://github.com/ethz-asl/kalibr/wiki/downloads
+#   Or generate with: kalibr_create_target_pdf --type apriltag --nx 6 --ny 6
+#
+# IMPORTANT: After printing, measure the ACTUAL tag size with calipers
+# and update tagSize below. Printers often scale slightly.
+# ============================================================================
+
+target_type: 'aprilgrid'
+tagCols: 6                  # Number of tag columns
+tagRows: 6                  # Number of tag rows
+tagSize: 0.02               # Tag size in meters (20mm) — MEASURE AND UPDATE!
+tagSpacing: 0.3              # Ratio of gap to tag size (gap = tagSpacing * tagSize)

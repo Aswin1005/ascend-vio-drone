@@ -1,0 +1,21 @@
+<launch>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <!-- Stream Configuration: Infrared stereo for VIO -->
+    <arg name="enable_infra1" value="true"/>
+    <arg name="enable_infra2" value="true"/>
+    <arg name="infra_width" value="640"/>
+    <arg name="infra_height" value="480"/>
+    <arg name="infra_fps" value="30"/>
+    
+    <!-- Disable color, depth, and IMU to save bandwidth -->
+    <arg name="enable_color" value="false"/>
+    <arg name="enable_depth" value="false"/>
+    <arg name="enable_gyro" value="false"/>
+    <arg name="enable_accel" value="false"/>
+    
+    <arg name="enable_sync" value="true"/>
+  </include>
+
+  <!-- Emitter OFF (dot pattern confuses feature tracking) -->
+  <param name="/camera/stereo_module/emitter_enabled" type="int" value="0"/>
+</launch>

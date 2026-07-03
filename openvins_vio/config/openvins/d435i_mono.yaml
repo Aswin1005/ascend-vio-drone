@@ -1,0 +1,24 @@
+%YAML:1.0
+# ============================================================================
+# D435i Infrared Camera Intrinsics (Default / Factory Approximate)
+# Replace these with Kalibr calibration output for best results.
+# Model: pinhole with radtan distortion
+# ============================================================================
+
+cam_model: "pinhole"
+dist_model: "radtan"
+
+# Intrinsics: [fx, fy, cx, cy]
+# These are approximate for D435i IR at 640x480.
+# Your actual values WILL be different — run Kalibr.
+intrinsics: [386.178, 386.178, 323.128, 238.574]
+
+# Distortion: [k1, k2, p1, p2]
+# D435i IR cameras have very low distortion
+distortion_coeffs: [0.0, 0.0, 0.0, 0.0]
+
+# Resolution
+resolution: [640, 480]
+
+# Rostopic (will be remapped in launch)
+rostopic: "/camera/infra1/image_raw"

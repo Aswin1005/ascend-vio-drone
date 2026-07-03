@@ -1,0 +1,20 @@
+# ============================================================================
+# IMU Parameters for Kalibr Camera-IMU Calibration
+# Pixhawk 6C Mini — ICM-42688-P
+# ============================================================================
+#
+# These values are used by kalibr_calibrate_imu_camera
+# They are the SAME as kalibr_imu_chain.yaml but in Kalibr input format
+# ============================================================================
+
+accelerometer_noise_density: 0.04       # m/s^2/sqrt(Hz)
+accelerometer_random_walk: 0.006        # m/s^3/sqrt(Hz)
+gyroscope_noise_density: 0.004          # rad/s/sqrt(Hz)
+gyroscope_random_walk: 0.00006          # rad/s^2/sqrt(Hz)
+model: "calibrated"
+rostopic: "/mavros/imu/data_raw"
+time_offset: 0.0
+update_rate: 160.0
+
+
+

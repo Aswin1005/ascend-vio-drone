@@ -1,0 +1,33 @@
+%YAML:1.0
+# ============================================================================
+# IMU Noise Parameters — Pixhawk 6C Mini (ICM-42688-P)
+# Format: Kalibr imu_chain format
+# ============================================================================
+#
+# These are CONSERVATIVE starting values (inflated ~10x from datasheet).
+# For best results, perform Allan Variance calibration:
+#   1. Record 2+ hours of stationary IMU data
+#   2. Run allan_variance_ros analysis
+#   3. Update these values
+#
+# Datasheet values for ICM-42688-P:
+#   Gyro noise density:  ~0.0003 rad/s/sqrt(Hz)
+#   Gyro random walk:    ~0.000006 rad/s^2/sqrt(Hz)
+#   Accel noise density: ~0.004 m/s^2/sqrt(Hz)
+#   Accel random walk:   ~0.0006 m/s^3/sqrt(Hz)
+#
+# We inflate by 10x to account for:
+#   - Vibration from motors
+#   - USB transport jitter
+#   - Temperature effects
+# ============================================================================
+
+imu0:
+  accelerometer_noise_density: 0.04       # m/s^2/sqrt(Hz)
+  accelerometer_random_walk: 0.006        # m/s^3/sqrt(Hz)
+  gyroscope_noise_density: 0.004          # rad/s/sqrt(Hz)
+  gyroscope_random_walk: 0.00006          # rad/s^2/sqrt(Hz)
+  model: "calibrated"
+  rostopic: "/mavros/imu/data_raw"
+  time_offset: 0.0                        # Will be estimated online
+  update_rate: 200.0                      # Hz — must match SR0_RAW_IMU param
