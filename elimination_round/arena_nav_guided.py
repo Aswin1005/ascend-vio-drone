@@ -372,9 +372,10 @@ def goto_wp(target_n, target_e, alt, yaw, label, hover_mode):
             return do_hover_guided_or_fh(YELLOW_STOP_HOVER_S, hover_mode, cn, ce, alt, yaw)
 
         elapsed = time.time()-t0
-        if not warned and elapsed > WP_TIMEOUT_S:
-            warn(f"Slow on {label}: {dist:.2f}m away after {WP_TIMEOUT_S}s. Continuing...")
-            warned = True
+        if elapsed > WP_TIMEOUT_S:
+            warn(f"Timeout on {label} after {WP_TIMEOUT_S}s. Proceeding to next waypoint.")
+            cn, ce, _ = get_pos()
+            return do_hover_guided_or_fh(HOVER_S, hover_mode, cn, ce, alt, yaw)
 
         rate.sleep()
 
