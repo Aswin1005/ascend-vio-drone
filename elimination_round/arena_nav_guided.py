@@ -30,11 +30,11 @@ from std_msgs.msg import String
 
 # Takeoff ramp (RC override phase)
 TAKEOFF_PWM_START  = 1400
-TAKEOFF_PWM_MAX    = 1750
+TAKEOFF_PWM_MAX    = 1850
 TAKEOFF_PWM_STEP   = 10
 TAKEOFF_TICK_S     = 0.3
 GROUND_ALT_OFFSET  = 0.10
-TAKEOFF_TARGET_OFF = 0.35
+TAKEOFF_TARGET_OFF = 1.5
 
 # GUIDED altitude
 GUIDED_ALT = 2.0     # target hover altitude (m)
@@ -394,13 +394,6 @@ def run_mission():
         c = input("Continue without yellow? (y/n): ").strip().lower()
         if c != 'y': log("Aborted."); return
 
-    # Takeoff mode (RC override phase)
-    while True:
-        c = input("\nRC takeoff mode:\n  1 - FLOWHOLD\n  2 - LOITER\nEnter: ").strip()
-        if c=="1": arm_mode,wait_str="22","CMODE(22)"; break
-        elif c=="2": arm_mode,wait_str="LOITER","LOITER"; break
-        print("Invalid.")
-
     # Hover mode (between waypoints)
     while True:
         c = input("\nHover mode between waypoints:\n  1 - GUIDED hold\n  2 - FLOWHOLD\nEnter: ").strip()
@@ -411,16 +404,30 @@ def run_mission():
     threading.Thread(target=_kb_thread, daemon=True).start()
     start_vio_guard()
 
-    # ── RC TAKEOFF ──
-    if not rc_takeoff(arm_mode, wait_str):
+    # ── RC TAKEOFF (Hardcoded to LOITER like nav_loiter) ──
+    if not rc_takeoff("LOITER", "LOITER"):
         abort_land("Takeoff failed"); return
 
     start_rc_heartbeat()
     set_rc_hb(1500,1500,1500,1500)
 
-    # Hover post-takeoff
-    log(f"Hovering {HOVER_S}s before GUIDED switch...")
-    if not sleep_check(HOVER_S): land_and_disarm(); return
+    # Ensure LOITER mode
+    if state.mode != "LOITER":
+        log("Switching to LOITER...")
+        if not set_mode("LOITER") or not wait_mode("LOITER"):
+            abort_land("LOITER switch failed"); return
+
+    # Pre-sequence hover in FLOWHOLD (like nav_loiter)
+    log("Switching to FLOWHOLD (mode 22) for pre-sequence hover...")
+    if not set_mode("22") or not wait_mode("CMODE(22)", timeout=5):
+        abort_land("FLOWHOLD switch failed"); return
+    
+    log("Hovering in FLOWHOLD for 10s...")
+    if not sleep_check(10.0): land_and_disarm(); return
+
+    log("Switching back to LOITER before GUIDED transition...")
+    if not set_mode("LOITER") or not wait_mode("LOITER", timeout=5):
+        abort_land("LOITER switch back failed"); return
 
     # Capture home
     rospy.sleep(1.0)
