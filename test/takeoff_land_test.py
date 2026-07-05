@@ -271,13 +271,9 @@ def run_test():
     log("Hovering in FLOWHOLD...")
     if not sleep_check(10.0): land_and_disarm(); return
 
-    # ── 3) SWITCH TO LOITER & CLIMB TO 1.75M ──
-    log("Switching to LOITER for step climb...")
-    if not set_mode("LOITER") or not wait_mode("LOITER", timeout=5):
-        abort_land("LOITER switch failed"); return
-
+    # ── 3) CLIMB TO 1.75M IN FLOWHOLD ──
     target_climb_alt = ground + CLIMB_TARGET_OFF
-    log(f"Climbing to 1.75m (absolute target: {target_climb_alt:.2f}m)...")
+    log(f"Climbing to 1.75m in FLOWHOLD (absolute target: {target_climb_alt:.2f}m)...")
     
     curr_throttle = 1500
     r = rospy.Rate(LOOP_RATE_HZ)
@@ -294,14 +290,14 @@ def run_test():
         set_rc_hb(throttle=curr_throttle)
         r.sleep()
 
-    # Stay in LOITER neutral for 10 seconds
-    log(f"Setting throttle to neutral. Hovering in LOITER for {HOVER_DURATION_S}s...")
+    # Stay in FLOWHOLD neutral for 10 seconds
+    log(f"Setting throttle to neutral. Hovering in FLOWHOLD for {HOVER_DURATION_S}s...")
     set_rc_hb(throttle=1500)
     if not sleep_check(HOVER_DURATION_S): land_and_disarm(); return
 
-    # ── 4) LANDING SEQUENCE: REDUCE THROTTLE TO 1.0M ──
+    # ── 4) LANDING SEQUENCE: REDUCE THROTTLE TO 1.0M IN FLOWHOLD ──
     target_descend_alt = ground + DESCEND_TARGET_OFF
-    log(f"Descending back to 1.0m (absolute target: {target_descend_alt:.2f}m)...")
+    log(f"Descending back to 1.0m in FLOWHOLD (absolute target: {target_descend_alt:.2f}m)...")
     
     curr_throttle = 1500
     while _ok():
@@ -317,8 +313,8 @@ def run_test():
         set_rc_hb(throttle=curr_throttle)
         r.sleep()
 
-    # Hover at 1.0m for 10 seconds
-    log(f"Setting throttle to neutral. Hovering in LOITER for {HOVER_DURATION_S}s...")
+    # Hover at 1.0m in FLOWHOLD for 10 seconds
+    log(f"Setting throttle to neutral. Hovering in FLOWHOLD for {HOVER_DURATION_S}s...")
     set_rc_hb(throttle=1500)
     if not sleep_check(HOVER_DURATION_S): land_and_disarm(); return
 
