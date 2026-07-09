@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ï»¿#!/usr/bin/env python3
 """
 corner_VerticalTakeoff_arena_loiter_rtl.py
 ==========================================
@@ -74,6 +74,11 @@ SHIFT_PITCH_PWM  = 1470
 T_SHIFT          = 10.0
 YELLOW_STOP_HOVER_S = 5.0
 HOVER_S          = 5.0
+
+# RTL return
+RTL_WAIT_S         = 50.0  # seconds to wait for RTL to complete before forcing LAND
+RETURN_PITCH_PWM   = 1470  # pitch forward PWM for return
+RETURN_EXTRA_PITCH_S = 0.5 # extra pitch after yellow front detected
 
 # Land
 LAND_WAIT_S      = 20.0
@@ -346,7 +351,7 @@ def flowhold_descend(ground):
     return _ok()
 
 # --------------------------------------------------------------
-#  MOTION HELPERS — CORNER DETECTION (LOITER neutral hovers)
+#  MOTION HELPERS ï¿½ CORNER DETECTION (LOITER neutral hovers)
 # --------------------------------------------------------------
 def corner_yaw_180():
     log(f"Yaw 180 ({YAW_180_PWM}) for {YAW_180_TIME_S}s")
@@ -389,7 +394,7 @@ def corner_roll_right_until_right():
     return False
 
 # --------------------------------------------------------------
-#  MOTION HELPERS — ARENA SWEEP
+#  MOTION HELPERS ï¿½ ARENA SWEEP
 # --------------------------------------------------------------
 def arena_yaw_180(hover_mode):
     log(f"Arena yaw 180 ({YAW_180_PWM}) for {YAW_180_TIME_S}s")
@@ -532,7 +537,27 @@ def run_mission():
     if not arena_yaw_180(hover_mode): land_and_disarm(); return
     if not _ok(): land_and_disarm(); return
 
-    # 4) FLOWHOLD DESCENT + LAND
+    # -- RTL -- drone returns and lands automatically
+    log("Activating RTL - drone will return to base.")
+    set_mode("RTL")
+    log(f"Monitoring yellow-front during RTL (up to {RTL_WAIT_S}s)...")
+    t_rtl = time.time()
+    yellow_intercept = False
+    rate = rospy.Rate(10)
+    while _ok() and (time.time() - t_rtl) < RTL_WAIT_S:
+        if yellow_active("front"):
+            log("Yellow FRONT during RTL! Cancelling RTL -> hover -> new landing.")
+            yellow_intercept = True
+            break
+        rate.sleep()
+    if yellow_intercept:
+        log(f"Yellow intercept: hovering {YELLOW_STOP_HOVER_S}s...")
+        do_hover(YELLOW_STOP_HOVER_S, hover_mode)
+    else:
+        log("RTL timeout - proceeding to FLOWHOLD descent.")
+    if not _ok(): land_and_disarm(); return
+    # -- 4) FLOWHOLD DESCENT + LAND --
+    log("Switching to FLOWHOLD for descent...")
     if not set_mode("22") or not wait_mode("CMODE(22)", timeout=5):
         abort_land("FLOWHOLD switch failed for descent"); return
     if not flowhold_descend(ground): land_and_disarm(); return
