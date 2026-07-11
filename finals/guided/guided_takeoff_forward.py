@@ -441,11 +441,10 @@ def run_mission():
     log("Calibrating ground level...")
     rospy.sleep(1.0)
     ground = rf_range
-    if ground == 0.0:
-        warn("Rangefinder 0.0 — waiting for valid data...")
-        while not rospy.is_shutdown() and rf_range == 0.0: rospy.sleep(0.5)
-        ground = rf_range
     log(f"Ground: {ground:.3f}m")
+
+    if not _ok():
+        return
 
     # ── TAKEOFF ──
     if method == 1:
